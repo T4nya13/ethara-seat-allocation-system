@@ -37,6 +37,7 @@ config.set_main_option("sqlalchemy.url", sync_url)
 # Models are not defined yet; this will be updated when models are added.
 try:
     from app.database import Base  # noqa: F401
+    import app.models  # noqa: F401 — registers all models on Base.metadata
     target_metadata = Base.metadata
 except ImportError:
     target_metadata = None

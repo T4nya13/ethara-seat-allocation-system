@@ -59,7 +59,44 @@
 
 ## 2. Database
 
-*(to be filled when models + migrations are created)*
+### Entry 1 — 2026-07-08
+
+**Prompt:**
+> "Read docs/requirements.md and docs/architecture.md carefully. Implement ONLY
+> the database layer. Use SQLAlchemy 2.0 declarative syntax. Create models for
+> Employee, Project, Seat, SeatAllocation with UUID PKs, created_at/updated_at,
+> foreign keys, relationships, indexes, enums, and constraints. Do NOT create
+> APIs, schemas, auth, or business logic. Generate docs/database_schema.md.
+> Verify all imports resolve."
+
+**Output summary:**
+- Created `backend/app/models/` package with 7 files:
+  - `enums.py` — 4 enums: `ProjectStatus`, `EmployeeStatus`, `SeatStatus`, `AllocationStatus`
+  - `base.py` — `UUIDPrimaryKeyMixin` + `TimestampMixin`
+  - `project.py`, `employee.py`, `seat.py`, `seat_allocation.py`, `audit_log.py`
+  - `__init__.py` — imports all models in FK-safe order for Alembic
+- Updated `alembic/env.py` to import `app.models` so autogenerate registers all tables
+- Created `docs/database_schema.md` with Mermaid ER diagram + full column/constraint docs
+- Ran Python import verification; all 5 tables, all columns, all indexes confirmed
+
+**What was right:**
+- Partial unique indexes (`uq_active_seat_per_employee`, `uq_active_alloc_per_seat`) using `postgresql_where=text(...)` — DB-level enforcement of rules #1 and #2 even under concurrent requests
+- Composite `UNIQUE(floor, zone, seat_number)` on `seats` — rule #7
+- `UNIQUE(email)` and `UNIQUE(employee_code)` on employees — rule #6
+- `project_id` in `seat_allocations` is a **snapshot** FK (project at allocation time), not live
+- FK cascade choices: `ON DELETE RESTRICT` for employee/seat FKs (don't silently lose data), `ON DELETE SET NULL` for project FKs (employee can exist without a project)
+- All enums inherit `str` — FastAPI can serialise them to JSON without extra coercion
+- `AuditLog` has no `updated_at` — audit rows are immutable by design
+
+**What was wrong / missing:**
+- *(none — import verification passed cleanly)*
+
+**Manual fixes:**
+- *(none required)*
+
+**How validated:**
+- Ran `.venv/Scripts/python -c "..."` importing all models and printing `Base.metadata.tables`
+- Output confirmed: 5 tables (`audit_logs`, `employees`, `projects`, `seat_allocations`, `seats`), correct columns on each, both partial unique indexes registered
 
 ---
 
