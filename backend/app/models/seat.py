@@ -75,7 +75,7 @@ class Seat(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         nullable=False,
         default=SeatStatus.available,
         server_default=SeatStatus.available.value,
-        index=True,
+        # index defined explicitly in __table_args__ below
     )
 
     # ── Relationships ─────────────────────────────────────────────────────────

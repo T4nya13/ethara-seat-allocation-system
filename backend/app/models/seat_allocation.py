@@ -59,20 +59,20 @@ class SeatAllocation(UUIDPrimaryKeyMixin, Base):
     employee_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("employees.id", ondelete="RESTRICT"),
         nullable=False,
-        index=True,
         comment="Employee who was allocated the seat",
+        # indexed via uq_active_seat_per_employee (partial) + ix_seat_alloc_employee_id below
     )
     seat_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("seats.id", ondelete="RESTRICT"),
         nullable=False,
-        index=True,
         comment="The seat that was allocated",
+        # indexed via uq_active_alloc_per_seat (partial) + ix_seat_alloc_seat_id below
     )
     project_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         ForeignKey("projects.id", ondelete="SET NULL"),
         nullable=True,
-        index=True,
         comment="Project the employee was on AT THE TIME of allocation (snapshot)",
+        # indexed via ix_seat_alloc_project_status compound index below
     )
 
     # ── Domain columns ────────────────────────────────────────────────────────
@@ -85,14 +85,14 @@ class SeatAllocation(UUIDPrimaryKeyMixin, Base):
         nullable=False,
         default=AllocationStatus.active,
         server_default=AllocationStatus.active.value,
-        index=True,
+        # indexed via ix_seat_alloc_status in __table_args__
     )
     allocation_date: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
         server_default=text("now()"),
-        index=True,
         comment="When the seat was allocated",
+        # indexed via ix_seat_alloc_date in __table_args__
     )
     released_date: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True),
@@ -135,6 +135,8 @@ class SeatAllocation(UUIDPrimaryKeyMixin, Base):
             postgresql_where=text("allocation_status = 'active'"),
         ),
         # ── Performance indexes ───────────────────────────────────────────────
+        Index("ix_seat_alloc_employee_id", "employee_id"),
+        Index("ix_seat_alloc_seat_id", "seat_id"),
         Index("ix_seat_alloc_status", "allocation_status"),
         Index("ix_seat_alloc_date", "allocation_date"),
         # Compound index: fetch all active allocations for a project efficiently

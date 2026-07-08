@@ -14,6 +14,8 @@ from sqlalchemy import text
 
 from app.config import settings
 from app.database import engine
+from app.routers import projects, employees, seats
+
 
 
 # ── Lifespan ────────────────────────────────────────────────────────────────
@@ -49,6 +51,10 @@ app.add_middleware(
 
 
 # ── Routes ───────────────────────────────────────────────────────────────────
+app.include_router(projects.router)
+app.include_router(employees.router)
+app.include_router(seats.router)
+
 @app.get("/", tags=["root"])
 async def root() -> dict:
     """API root — returns basic metadata."""

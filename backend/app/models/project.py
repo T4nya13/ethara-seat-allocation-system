@@ -61,7 +61,7 @@ class Project(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         nullable=False,
         default=ProjectStatus.active,
         server_default=ProjectStatus.active.value,
-        index=True,
+        # index defined explicitly in __table_args__ below
     )
 
     # ── Relationships ─────────────────────────────────────────────────────────
