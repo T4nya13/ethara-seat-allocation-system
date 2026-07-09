@@ -12,13 +12,12 @@ Exposes:
 
 from contextlib import asynccontextmanager
 
-from app.models.base import Base
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
 from app.config import settings
-from app.database import engine
+from app.database import engine, Base  
 from app.routers import projects, employees, seats, dashboard, ai
 
 
