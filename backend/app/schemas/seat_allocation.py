@@ -10,6 +10,8 @@ class SeatAllocationCreate(BaseModel):
     employee_id: UUID
     seat_id: UUID
 
+class SeatReleaseRequest(BaseModel):
+    employee_id: UUID
 
 class SeatAllocationResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)

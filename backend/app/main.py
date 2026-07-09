@@ -1,9 +1,13 @@
 """FastAPI application entry point.
 
-Scaffold only — no business logic.
 Exposes:
-  GET /        → API info
-  GET /health  → liveness + DB reachability check
+  GET  /                → API info
+  GET  /health          → liveness + DB reachability check
+  ---  /projects        → project CRUD
+  ---  /employees       → employee CRUD + soft-delete
+  ---  /seats           → seat CRUD + allocate/release
+  GET  /dashboard/stats → live aggregate stats
+  POST /ai/query        → natural-language assistant
 """
 
 from contextlib import asynccontextmanager
@@ -14,7 +18,7 @@ from sqlalchemy import text
 
 from app.config import settings
 from app.database import engine
-from app.routers import projects, employees, seats
+from app.routers import projects, employees, seats, dashboard, ai
 
 
 
@@ -54,6 +58,8 @@ app.add_middleware(
 app.include_router(projects.router)
 app.include_router(employees.router)
 app.include_router(seats.router)
+app.include_router(dashboard.router)
+app.include_router(ai.router)
 
 @app.get("/", tags=["root"])
 async def root() -> dict:
