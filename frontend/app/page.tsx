@@ -30,7 +30,7 @@ interface SeatItem {
 }
 
 // ── Constants ──────────────────────────────────────────────────────────────────
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const API_BASE = "https://ethara-backend-m26r.onrender.com";
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 function fmt(n: number): string {
