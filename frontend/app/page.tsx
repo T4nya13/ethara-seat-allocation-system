@@ -152,7 +152,7 @@ interface MetricCardProps {
   icon: React.ReactNode;
 }
 
-function MetricCard({ label, value, sub, color, glow, dim, loaded, delay = "", icon }: MetricCardProps) {
+function MetricCard({ label, value, sub, color, dim, loaded, delay = "", icon }: MetricCardProps) {
   const animated = useCountUp(value, 900, loaded);
   return (
     <div
