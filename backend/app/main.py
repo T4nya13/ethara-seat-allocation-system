@@ -12,6 +12,7 @@ Exposes:
 
 from contextlib import asynccontextmanager
 
+from app.models.base import Base
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
@@ -26,7 +27,9 @@ from app.routers import projects, employees, seats, dashboard, ai
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup / shutdown lifecycle."""
-    # Nothing to initialise at scaffold stage — models + migrations come next.
+    # This creates all missing tables dynamically on database check
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
     yield
     await engine.dispose()
 
