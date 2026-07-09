@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 interface HealthData {
@@ -152,7 +152,6 @@ interface MetricCardProps {
   icon: React.ReactNode;
 }
 
-// FIX: Removed unused 'glow' parameter variable declaration to clear compiler rules
 function MetricCard({ label, value, sub, color, dim, loaded, delay = "", icon }: MetricCardProps) {
   const animated = useCountUp(value, 900, loaded);
   return (
@@ -242,7 +241,6 @@ export default function DashboardPage() {
   const [seatsLoaded,  setSeatsLoaded]  = useState(false);
 
   const [currentTime, setCurrentTime] = useState("");
-  const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // ── Clock ──────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -256,8 +254,8 @@ export default function DashboardPage() {
         })
       );
     tick();
-    tickRef.current = setInterval(tick, 1000);
-    return () => { if (tickRef.current) clearInterval(tickRef.current); };
+    const intervalId = setInterval(tick, 1000);
+    return () => clearInterval(intervalId);
   }, []);
 
   // ── Health poll (every 15 s) ───────────────────────────────────────────────
@@ -355,7 +353,6 @@ export default function DashboardPage() {
           >
             {currentTime || "––:––:––"}
           </div>
-          {/* Env chip */}
           {health?.environment && (
             <span
               className="text-[10px] uppercase tracking-widest px-2 py-1 rounded"
@@ -394,7 +391,6 @@ export default function DashboardPage() {
             className="glass-card rounded-2xl p-8 flex flex-col items-center justify-center animate-slide-up delay-100 relative overflow-hidden"
             style={{ minWidth: 280, boxShadow: "0 0 0 1px rgba(255,255,255,0.04) inset, 0 8px 48px rgba(0,0,0,0.6)" }}
           >
-            {/* Background glow sweep */}
             <div className="absolute inset-0 pointer-events-none"
               style={{ background: "radial-gradient(ellipse 80% 60% at 50% 100%, rgba(155,93,229,0.08) 0%, transparent 70%)" }} />
 
@@ -425,7 +421,6 @@ export default function DashboardPage() {
 
           {/* Metric cards grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-            {/* Total seats */}
             <MetricCard
               label="Total Capacity"
               value={stats?.total_seats ?? 0}
@@ -437,7 +432,6 @@ export default function DashboardPage() {
               delay="delay-150"
               icon={<svg width={16} height={16} viewBox="0 0 16 16" fill="none"><rect x={1} y={1} width={6} height={6} rx={1} fill="rgba(255,255,255,0.6)"/><rect x={9} y={1} width={6} height={6} rx={1} fill="rgba(255,255,255,0.3)"/><rect x={1} y={9} width={6} height={6} rx={1} fill="rgba(255,255,255,0.3)"/><rect x={9} y={9} width={6} height={6} rx={1} fill="rgba(255,255,255,0.6)"/></svg>}
             />
-            {/* Active allocations */}
             <MetricCard
               label="Active Allocations"
               value={stats?.active_allocations ?? 0}
@@ -449,7 +443,6 @@ export default function DashboardPage() {
               delay="delay-200"
               icon={<svg width={16} height={16} viewBox="0 0 16 16" fill="none"><circle cx={8} cy={5} r={3} fill="#9B5DE5" fillOpacity={0.9}/><path d="M2 14c0-3.314 2.686-5 6-5s6 1.686 6 5" stroke="#9B5DE5" strokeWidth={1.5} strokeLinecap="round"/></svg>}
             />
-            {/* Available seats */}
             <MetricCard
               label="Open Desks"
               value={stats?.available_seats ?? 0}
@@ -461,7 +454,6 @@ export default function DashboardPage() {
               delay="delay-300"
               icon={<svg width={16} height={16} viewBox="0 0 16 16" fill="none"><circle cx={8} cy={8} r={6} stroke="#00F5FF" strokeWidth={1.5} strokeOpacity={0.8}/><path d="M5.5 8.5l2 2 3-4" stroke="#00F5FF" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"/></svg>}
             />
-            {/* Employees */}
             <MetricCard
               label="Total Employees"
               value={stats?.employees ?? 0}
@@ -472,7 +464,6 @@ export default function DashboardPage() {
               delay="delay-400"
               icon={<svg width={16} height={16} viewBox="0 0 16 16" fill="none"><circle cx={5.5} cy={5} r={2.5} fill="#FFB800" fillOpacity={0.8}/><circle cx={10.5} cy={5} r={2.5} fill="#FFB800" fillOpacity={0.5}/><path d="M1 14c0-2.485 2.015-4 4.5-4s4.5 1.515 4.5 4" stroke="#FFB800" strokeWidth={1.5} strokeLinecap="round"/><path d="M10.5 10c1.5 0 4 0.8 4 4" stroke="#FFB800" strokeWidth={1.5} strokeLinecap="round" strokeOpacity={0.6}/></svg>}
             />
-            {/* Reserved */}
             <MetricCard
               label="Reserved / Blocked"
               value={stats?.reserved_seats ?? 0}
@@ -483,7 +474,6 @@ export default function DashboardPage() {
               delay="delay-500"
               icon={<svg width={16} height={16} viewBox="0 0 16 16" fill="none"><rect x={2} y={7} width={12} height={7} rx={1.5} stroke="rgba(255,255,255,0.4)" strokeWidth={1.5}/><path d="M5 7V5a3 3 0 016 0v2" stroke="rgba(255,255,255,0.4)" strokeWidth={1.5} strokeLinecap="round"/></svg>}
             />
-            {/* Occupancy % */}
             <div
               className="glass-card rounded-2xl p-5 relative overflow-hidden animate-slide-up delay-600 flex flex-col justify-between"
               style={{ boxShadow: "0 0 0 1px rgba(255,255,255,0.04) inset, 0 4px 24px rgba(0,0,0,0.4)" }}
@@ -499,7 +489,6 @@ export default function DashboardPage() {
                   <p className="metric-num font-bold text-3xl" style={{ color: "var(--cyan)" }}>
                     {pct.toFixed(2)}%
                   </p>
-                  {/* Mini progress bar */}
                   <div className="mt-3 h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
                     <div
                       className="h-full rounded-full"
@@ -532,11 +521,9 @@ export default function DashboardPage() {
           className="glass-card rounded-2xl p-6 animate-slide-up delay-500 relative overflow-hidden"
           style={{ boxShadow: "0 0 0 1px rgba(255,255,255,0.04) inset, 0 8px 48px rgba(0,0,0,0.5)" }}
         >
-          {/* Background glow */}
           <div className="absolute inset-0 pointer-events-none"
             style={{ background: "radial-gradient(ellipse 60% 40% at 50% 100%, rgba(0,245,255,0.04) 0%, transparent 70%)" }} />
 
-          {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div>
               <div className="flex items-center gap-2 mb-1">
@@ -549,7 +536,6 @@ export default function DashboardPage() {
                 First 100 seats · real-time status · hover for details
               </p>
             </div>
-            {/* Legend */}
             <div className="flex items-center gap-4">
               {[
                 { label: "Available", cls: "available" },
@@ -564,7 +550,6 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Floor rows */}
           {seatsLoaded ? (
             seats.length > 0 ? (
               <div className="space-y-4">
@@ -575,16 +560,13 @@ export default function DashboardPage() {
                   const floorPct = Math.round((floorOccupied / floorSeats.length) * 100);
                   return (
                     <div key={f} className="flex items-center gap-4">
-                      {/* Floor label */}
                       <div className="w-14 flex-shrink-0">
                         <p className="text-[10px] uppercase tracking-[0.15em]" style={{ color: "var(--text-muted)" }}>
                           Floor {f}
                         </p>
                         <p className="text-[10px] metric-num" style={{ color: "var(--purple)" }}>{floorPct}%</p>
                       </div>
-                      {/* Separator */}
                       <div className="w-px h-8 self-center" style={{ background: "rgba(255,255,255,0.06)" }} />
-                      {/* Dots */}
                       <div className="flex flex-wrap gap-1">
                         {floorSeats.map((seat) => (
                           <FloorMapDot key={seat.id} seat={seat} />
@@ -593,7 +575,6 @@ export default function DashboardPage() {
                     </div>
                   );
                 })}
-                {/* Summary bar */}
                 <div
                   className="mt-4 pt-4 flex items-center justify-between text-xs"
                   style={{ borderTop: "1px solid rgba(255,255,255,0.05)", color: "var(--text-muted)" }}
@@ -621,7 +602,6 @@ export default function DashboardPage() {
               </div>
             )
           ) : (
-            // Skeleton
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="flex items-center gap-4">
@@ -660,6 +640,7 @@ export default function DashboardPage() {
 
           {(() => {
             const [query, setQuery] = useState("");
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const [response, setResponse] = useState<any>(null);
             const [searching, setSearching] = useState(false);
 
