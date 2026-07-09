@@ -152,6 +152,7 @@ interface MetricCardProps {
   icon: React.ReactNode;
 }
 
+// FIX: Removed unused 'glow' parameter variable declaration to clear compiler rules
 function MetricCard({ label, value, sub, color, dim, loaded, delay = "", icon }: MetricCardProps) {
   const animated = useCountUp(value, 900, loaded);
   return (
@@ -636,13 +637,14 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* ── AI Query teaser ────────────────────────────────────────────── */}
+        {/* ── Interactive AI Query Component ───────────────────────────────── */}
         <div
           className="glass-card rounded-2xl p-6 animate-slide-up delay-700 relative overflow-hidden"
           style={{ boxShadow: "0 0 0 1px rgba(255,255,255,0.04) inset, 0 4px 24px rgba(0,0,0,0.4)" }}
         >
           <div className="absolute inset-0 pointer-events-none"
             style={{ background: "radial-gradient(ellipse 50% 60% at 0% 50%, rgba(155,93,229,0.06) 0%, transparent 70%)" }} />
+          
           <div className="flex items-center gap-3 mb-4">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center"
               style={{ background: "rgba(155,93,229,0.12)", border: "1px solid rgba(155,93,229,0.2)" }}>
@@ -651,21 +653,76 @@ export default function DashboardPage() {
               </svg>
             </div>
             <div>
-              <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>AI Assistant</p>
-              <p className="text-xs" style={{ color: "var(--text-muted)" }}>POST /ai/query · natural language seat lookup</p>
+              <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>AI Search Engine</p>
+              <p className="text-xs" style={{ color: "var(--text-muted)" }}>Ask natural language questions about workforce deployments or office locations</p>
             </div>
           </div>
-          <div
-            className="rounded-xl p-4 font-mono text-sm"
-            style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(155,93,229,0.12)", color: "var(--text-secondary)" }}
-          >
-            <span style={{ color: "var(--purple)", opacity: 0.7 }}>POST</span>{" "}
-            <span style={{ color: "var(--text-muted)" }}>/ai/query</span>
-            <br />
-            <span style={{ color: "var(--text-muted)" }}>{`{ "query": "Where is `}</span>
-            <span style={{ color: "var(--cyan)" }}>{"jane.smith@ethara.com"}</span>
-            <span style={{ color: "var(--text-muted)" }}>{`" }`}</span>
-          </div>
+
+          {(() => {
+            const [query, setQuery] = useState("");
+            const [response, setResponse] = useState<any>(null);
+            const [searching, setSearching] = useState(false);
+
+            const handleAISubmit = async (e: React.FormEvent) => {
+              e.preventDefault();
+              if (!query.trim()) return;
+              setSearching(true);
+              setResponse(null);
+
+              try {
+                const res = await fetch(`${API_BASE}/ai/query`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ query: query.trim() }),
+                });
+                if (res.ok) {
+                  setResponse(await res.json());
+                } else {
+                  setResponse({ error: "Failed to parse query intent pattern." });
+                }
+              } catch {
+                setResponse({ error: "Network disconnected from engine core." });
+              } finally {
+                setSearching(false);
+              }
+            };
+
+            return (
+              <div className="space-y-4">
+                <form onSubmit={handleAISubmit} className="flex gap-2">
+                  <input
+                    type="text"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Try: 'Where is employee E1024?' or 'Show details for project Alpha'..."
+                    className="flex-1 bg-slate-950/60 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/30 transition-all font-sans"
+                  />
+                  <button
+                    type="submit"
+                    disabled={searching}
+                    className="text-xs px-4 py-2.5 rounded-lg border border-purple-900/40 bg-purple-950/30 text-purple-400 hover:bg-purple-900/40 font-medium disabled:opacity-40 transition-all"
+                  >
+                    {searching ? "Processing…" : "Query Engine"}
+                  </button>
+                </form>
+
+                {(response || searching) && (
+                  <div
+                    className="rounded-xl p-4 font-mono text-xs space-y-1 overflow-x-auto"
+                    style={{ background: "rgba(0,0,0,0.4)", border: "1px solid rgba(155,93,229,0.12)", color: "var(--text-secondary)" }}
+                  >
+                    {searching && <div className="text-purple-400 animate-pulse">&gt; Initializing neural pattern scanner...</div>}
+                    {response && (
+                      <pre className="text-slate-300 leading-relaxed font-mono whitespace-pre-wrap">
+                        {JSON.stringify(response, null, 2)}
+                      </pre>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
           <div className="absolute bottom-0 left-0 right-0 h-px"
             style={{ background: "linear-gradient(90deg, transparent, rgba(155,93,229,0.3), transparent)" }} />
         </div>
